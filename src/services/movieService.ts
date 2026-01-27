@@ -1,29 +1,23 @@
 import axios from 'axios';
-import type { Movie } from '../types/movie';
-
-export interface MoviesResponse{
-    results: Movie[];
-    page: number;
-    total_pages: number;
-    total_results: number;
-}
+import type { MoviesResponse } from '../types/movie';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const API_TOKEN = import.meta.env.VITE_API_TOKEN;
 
-export const fetchMovies = async (query: string): Promise<Movie[]> => {
+export const fetchMovies = async (query: string, page: number = 1): Promise<MoviesResponse> => {
     const { data } = await axios.get<MoviesResponse>(
         `${BASE_URL}/search/movie`,
         {
             params: {
                 query: query,
                 language: 'en-US',
-                page: 1,
+                page: page,
+                include_adult: false,
             },
             headers: {
                 Authorization: `Bearer ${API_TOKEN}`,
             },
         }
     );
-    return data.results
+    return data
 }
