@@ -3,7 +3,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactPaginate from 'react-paginate';
 
-import { fetchMovies } from '../../services/movieService';
+import { fetchMovies, type MoviesResponse } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
 import MovieGrid from '../MovieGrid/MovieGrid';
@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
+  const { data, isLoading, isError, error, isPlaceholderData } = useQuery<MoviesResponse, Error>({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
