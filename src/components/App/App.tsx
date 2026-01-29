@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Toaster, toast } from 'react-hot-toast';
+import ReactPaginate from 'react-paginate';
 import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
@@ -19,7 +20,7 @@ const App: React.FC = () => {
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    placeholderData: keepPreviousData, 
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
@@ -49,44 +50,41 @@ const App: React.FC = () => {
     setSelectedMovie(null);
   };
 
-  const handleNextPage = () => {
-    if (!isPlaceholderData && data && page < data.total_pages) {
-      setPage((prev) => prev + 1);
-    }
+  const handlePageClick = ({ selected }: { selected: number }) => {
+    setPage(selected + 1)
   };
 
-  const handlePrevPage = () => {
-    setPage((prev) => Math.max(prev - 1, 1));
-  };
   const movies = data?.results || [];
+  const totalPages = data?.total_pages || 0;
 
   return (
     <div className={css.container}> 
       <Toaster position="top-right" />
       <SearchBar onSubmit={handleSearch} />
+
       {isLoading && <Loader />}
+      
       {isError && <ErrorMessage message={(error as Error).message} />}
+
       {movies.length > 0 && (
         <>
           <MovieGrid movies={movies} onSelect={handleSelectMovie} />
           
-          <div className={css.pagination}>
-            <button 
-              onClick={handlePrevPage} 
-              disabled={page === 1}
-              className={css.btn}
-            >
-              Previous
-            </button>
-            <span className={css.pageInfo}>Page {page} of {data?.total_pages}</span>
-            <button 
-              onClick={handleNextPage} 
-              disabled={isPlaceholderData || (data && page === data.total_pages)}
-              className={css.btn}
-            >
-              Next
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <ReactPaginate
+              breakLabel="..."
+              nextLabel="→"
+              previousLabel="←"
+              onPageChange={handlePageClick}
+              pageRangeDisplayed={5}
+              marginPagesDisplayed={1}
+              pageCount={totalPages}
+              forcePage={page - 1} 
+              containerClassName={css.pagination}
+              activeClassName={css.active}
+              disabledClassName={css.disabled} 
+            />
+          )}
         </>
       )}
 
@@ -98,4 +96,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
