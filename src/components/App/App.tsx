@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactPaginate from 'react-paginate';
+
 import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
-import MovieGrid from '../MovieGrid/MovieGrid'; // Використовуємо Grid, як у імпорті
+import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal'; 
+
 import css from './App.module.css';
 
 const App: React.FC = () => {
@@ -20,7 +22,7 @@ const App: React.FC = () => {
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    placeholderData: keepPreviousData,
+    placeholderData: keepPreviousData, 
   });
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const App: React.FC = () => {
   };
 
   const handlePageClick = ({ selected }: { selected: number }) => {
-    setPage(selected + 1)
+    setPage(selected + 1);
   };
 
   const movies = data?.results || [];
@@ -71,19 +73,26 @@ const App: React.FC = () => {
           <MovieGrid movies={movies} onSelect={handleSelectMovie} />
           
           {totalPages > 1 && (
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel="→"
-              previousLabel="←"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={5}
-              marginPagesDisplayed={1}
-              pageCount={totalPages}
-              forcePage={page - 1} 
-              containerClassName={css.pagination}
-              activeClassName={css.active}
-              disabledClassName={css.disabled} 
-            />
+            <div 
+              style={{ 
+                opacity: isPlaceholderData ? 0.5 : 1, 
+                pointerEvents: isPlaceholderData ? 'none' : 'auto' 
+              }}
+            >
+              <ReactPaginate
+                breakLabel="..."
+                nextLabel="→"
+                previousLabel="←"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={5}
+                marginPagesDisplayed={1}
+                pageCount={totalPages}
+                forcePage={page - 1} 
+                containerClassName={css.pagination}
+                activeClassName={css.active}
+                disabledClassName={css.disabled} 
+              />
+            </div>
           )}
         </>
       )}
